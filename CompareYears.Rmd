@@ -1,27 +1,28 @@
 ---
-title: "AQI"
+title: "Compare air quality year to year"
 output: html_notebook
 ---
 
 ```{r}
 
 library(tidyverse)
+library(lubridate)
+library(scales)
 
-alldata <- read.csv("Rektorat.csv") %>%
+
+alldata <- read.csv("data/Centar.csv") %>%
   mutate(datetime = ymd_hms(date)) %>%
   mutate(day = as_date(datetime))
+
+```
+
+```{r fig.width=25, fig.height=10}
 
 byday <- alldata %>%
   group_by(day) %>%
   summarise(dust = mean(dust)) %>%
   mutate(year = year(day) %>% as.character) %>%
   mutate(day_of_year = day %>% as.character %>% str_replace("^\\d{4}","2020") %>% as_date)
-
-```
-
-```{r fig.width=25, fig.height=10}
-
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 byday %>%
   ggplot(aes(x = day_of_year, y = dust, colour = year)) +
@@ -33,8 +34,6 @@ byday %>%
 ```
 
 ```{r fig.width=25, fig.height=10}
-
-library(lubridate)
 
 byweek <- alldata %>% 
   mutate(week = lubridate::week(day)) %>%

@@ -1,0 +1,55 @@
+---
+title: "AQI"
+output: html_notebook
+---
+
+```{r}
+
+library(tidyverse)
+
+alldata <- read.csv("Rektorat.csv") %>%
+  mutate(datetime = ymd_hms(date)) %>%
+  mutate(day = as_date(datetime))
+
+byday <- alldata %>%
+  group_by(day) %>%
+  summarise(dust = mean(dust)) %>%
+  mutate(year = year(day) %>% as.character) %>%
+  mutate(day_of_year = day %>% as.character %>% str_replace("^\\d{4}","2020") %>% as_date)
+
+```
+
+```{r fig.width=25, fig.height=10}
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+byday %>%
+  ggplot(aes(x = day_of_year, y = dust, colour = year)) +
+  geom_point() +
+  geom_smooth(se=FALSE, size=2) +
+  theme_bw() +
+  scale_x_date(labels = date_format("%b"))
+
+```
+
+```{r fig.width=25, fig.height=10}
+
+library(lubridate)
+
+byweek <- alldata %>% 
+  mutate(week = lubridate::week(day)) %>%
+  mutate(yearweek = paste(year(day) %>% as.character, week %>% as.character)) %>%
+  group_by(yearweek) %>%
+  summarise(dust = mean(dust)) %>%
+  mutate(year = substr(yearweek, 1, 4) %>% as.integer %>% as.character) %>%
+  mutate(week = substr(yearweek, 5, 7) %>% as.integer)
+
+byweek %>%
+  ggplot(aes(x = week, y = dust, colour = year)) +
+  geom_point() +
+  geom_smooth(se=FALSE) +
+  #geom_line() +
+  theme_bw()
+
+
+```

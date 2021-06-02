@@ -72,7 +72,7 @@ namespace GrabAirQualityData
                 string csvdata = String.Join(Environment.NewLine, data.Select(l => l.Item1.ToString("yyyy-MM-dd HH:mm:ss") + ";" + l.Item2.ToString()).ToArray());
                 try
                 {
-                    File.WriteAllText("Rektorat.csv", "date;pm25" + Environment.NewLine + csvdata);
+                    File.WriteAllText(station + ".csv", "date;pm25" + Environment.NewLine + csvdata);
                     Console.WriteLine("Successfully wrote " + data.Count + " measures.");
                 }
                 catch (Exception ex)
